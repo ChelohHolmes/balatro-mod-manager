@@ -1,5 +1,12 @@
 # [![Balatro Mod Manager](images/title.svg)](#)
 
+> [!WARNING]
+> **This project has been discontinued.** I no longer have the time to maintain it, so the servers behind Balatro Mod Manager are being shut down and this repository is archived. Features that rely on those servers will stop working.
+>
+> Looking for an alternative? Try [r2modman](https://thunderstore.io/c/balatro/p/ebkr/r2modman/) or [imm](https://codeberg.org/balafrost/imm) (Balatro Mod Manager, but in-game).
+>
+> The code stays open source under its license. If you want to continue the project, feel free to fork it. Thanks to everyone who used it and contributed!
+
 The Balatro Mod Manager by _Skyline_.
 
 Balatro Mod Manager is a standalone tool made for [Balatro](https://store.steampowered.com/app/2379780/Balatro/) that makes finding, downloading, and installing mods easy.
