@@ -2,10 +2,7 @@ import { writable } from "svelte/store";
 import { invoke } from "@tauri-apps/api/core";
 
 export type BackupTrigger =
-  | "auto_update"
-  | "auto_uninstall"
-  | "auto_bulk"
-  | "manual";
+  "auto_update" | "auto_uninstall" | "auto_bulk" | "manual";
 
 export interface Backup {
   id: string;

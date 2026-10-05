@@ -29,9 +29,9 @@ use bmm_lib::local_mod_detection;
 #[cfg(target_os = "macos")]
 use bmm_lib::lovely;
 #[cfg(target_os = "linux")]
-use bmm_lib::lovely::ensure_version_dll_exists;
+use bmm_lib::lovely::ensure_winmm_dll_exists;
 #[cfg(target_os = "windows")]
-use bmm_lib::lovely::ensure_version_dll_exists;
+use bmm_lib::lovely::ensure_winmm_dll_exists;
 #[cfg(target_os = "linux")]
 use bmm_lib::lovely::{ensure_love_binary, ensure_lovely_so_exists, get_latest_lovely_version};
 
@@ -434,10 +434,10 @@ pub async fn launch_balatro(state: tauri::State<'_, AppState>) -> Result<(), Str
     let path = PathBuf::from(path_str);
     let is_vanilla = launch_mode == "vanilla";
 
-    // Always ensure version.dll exists so modded mode works after vanilla launch
-    ensure_version_dll_exists(&path)
+    // Always ensure winmm.dll exists so modded mode works after vanilla launch
+    ensure_winmm_dll_exists(&path)
         .await
-        .map_err(|e| format!("Failed to ensure version.dll: {e}"))?;
+        .map_err(|e| format!("Failed to ensure winmm.dll: {e}"))?;
 
     let mut cmd = Command::new(path.join("Balatro.exe"));
 
@@ -543,10 +543,10 @@ pub async fn launch_balatro(state: tauri::State<'_, AppState>) -> Result<(), Str
         validate_prefix_executable(&cmd_parts[0])?;
         ensure_prefix_log_dir(&envs)?;
 
-        // Always ensure version.dll exists so modded mode works after vanilla launch
-        ensure_version_dll_exists(&path)
+        // Always ensure winmm.dll exists so modded mode works after vanilla launch
+        ensure_winmm_dll_exists(&path)
             .await
-            .map_err(|e| format!("Failed to ensure version.dll: {e}"))?;
+            .map_err(|e| format!("Failed to ensure winmm.dll: {e}"))?;
 
         bmm_lib::local_mod_detection::ensure_proton_mod_dir_link(Some(&path))?;
 
@@ -602,10 +602,8 @@ pub async fn launch_balatro(state: tauri::State<'_, AppState>) -> Result<(), Str
                 .position(|(key, _)| key.eq_ignore_ascii_case("WINEDLLOVERRIDES"));
             match winedll_idx {
                 None => {
-                    launch_envs.push(("WINEDLLOVERRIDES".to_string(), "version=n,b".to_string()));
-                    info!(
-                        "WINEDLLOVERRIDES not set; defaulting to version=n,b for Lovely injection"
-                    );
+                    launch_envs.push(("WINEDLLOVERRIDES".to_string(), "winmm=n,b".to_string()));
+                    info!("WINEDLLOVERRIDES not set; defaulting to winmm=n,b for Lovely injection");
                 }
                 Some(idx) => {
                     let value = launch_envs.get(idx).map(|(_, v)| v.as_str()).unwrap_or("");
@@ -617,7 +615,7 @@ pub async fn launch_balatro(state: tauri::State<'_, AppState>) -> Result<(), Str
                         };
                         launch_envs[idx].1 = updated;
                         info!(
-                            "WINEDLLOVERRIDES missing version; appended version=n,b for Lovely injection"
+                            "WINEDLLOVERRIDES missing version; appended winmm=n,b for Lovely injection"
                         );
                     }
                 }
@@ -1209,7 +1207,7 @@ mod tests {
     #[test]
     fn test_is_env_assignment_valid() {
         assert!(is_env_assignment("FOO=bar"));
-        assert!(is_env_assignment("WINEDLLOVERRIDES=version=n,b"));
+        assert!(is_env_assignment("WINEDLLOVERRIDES=winmm=n,b"));
         assert!(is_env_assignment("_VAR=value"));
         assert!(is_env_assignment("VAR123=something"));
         assert!(is_env_assignment("A=B"));

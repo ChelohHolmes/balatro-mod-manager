@@ -9,7 +9,7 @@ use crate::state::AppState;
 
 /// Check whether Lovely is currently installed/present on this system.
 /// - macOS: checks for `~/Library/Application Support/Balatro/bins/liblovely.dylib` (via config dir)
-/// - Windows/Linux (Proton/Wine): checks for a `version.dll` artifact in the Balatro game directory
+/// - Windows/Linux (Proton/Wine): checks for a `winmm.dll` artifact in the Balatro game directory
 #[tauri::command]
 pub async fn is_lovely_installed(_state: tauri::State<'_, AppState>) -> Result<bool, String> {
     #[cfg(target_os = "macos")]
@@ -28,14 +28,14 @@ pub async fn is_lovely_installed(_state: tauri::State<'_, AppState>) -> Result<b
         // Prefer database install path if present
         let db = _state.db.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(path) = db.get_installation_path().map_err(|e| e.to_string())? {
-            let dll = PathBuf::from(path).join("version.dll");
+            let dll = PathBuf::from(path).join("winmm.dll");
             return Ok(lovely::injector_artifact_exists(&dll));
         }
 
         // Fallback to first detected Balatro path
         let candidates = bmm_lib::finder::get_balatro_paths_cached();
         if let Some(p) = candidates.first() {
-            let dll = p.join("version.dll");
+            let dll = p.join("winmm.dll");
             return Ok(lovely::injector_artifact_exists(&dll));
         }
         return Ok(false);
@@ -47,9 +47,9 @@ pub async fn is_lovely_installed(_state: tauri::State<'_, AppState>) -> Result<b
         let db = _state.db.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(path) = db.get_installation_path().map_err(|e| e.to_string())? {
             let path = PathBuf::from(path);
-            // Check for both native (liblovely.so) and Proton (version.dll)
+            // Check for both native (liblovely.so) and Proton (winmm.dll)
             let so = path.join("liblovely.so");
-            let dll = path.join("version.dll");
+            let dll = path.join("winmm.dll");
             return Ok(
                 lovely::injector_artifact_exists(&so) || lovely::injector_artifact_exists(&dll)
             );
@@ -59,7 +59,7 @@ pub async fn is_lovely_installed(_state: tauri::State<'_, AppState>) -> Result<b
         let candidates = bmm_lib::finder::get_balatro_paths_cached();
         if let Some(p) = candidates.first() {
             let so = p.join("liblovely.so");
-            let dll = p.join("version.dll");
+            let dll = p.join("winmm.dll");
             return Ok(
                 lovely::injector_artifact_exists(&so) || lovely::injector_artifact_exists(&dll)
             );
@@ -143,16 +143,16 @@ mod tests {
 
     #[test]
     fn test_lovely_library_name_windows() {
-        // On Windows, Lovely uses version.dll
-        let expected = "version.dll";
+        // On Windows, Lovely uses winmm.dll
+        let expected = "winmm.dll";
         assert!(expected.ends_with(".dll"));
     }
 
     #[test]
     fn test_lovely_library_name_linux() {
-        // On Linux, Lovely can use liblovely.so (native) or version.dll (Proton)
+        // On Linux, Lovely can use liblovely.so (native) or winmm.dll (Proton)
         let native = "liblovely.so";
-        let proton = "version.dll";
+        let proton = "winmm.dll";
         assert!(native.ends_with(".so"));
         assert!(proton.ends_with(".dll"));
     }

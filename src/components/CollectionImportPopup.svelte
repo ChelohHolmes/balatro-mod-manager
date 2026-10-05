@@ -54,8 +54,7 @@
       <textarea
         class="import-textarea"
         placeholder="BMMCOLL1:..."
-        bind:value={importCode}
-      ></textarea>
+        bind:value={importCode}></textarea>
       <div class="import-actions">
         <button class="ghost neutral" type="button" onclick={close}>
           Cancel

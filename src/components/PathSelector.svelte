@@ -94,9 +94,7 @@
 
       if (isValid) {
         const storedPath = (await invoke("get_balatro_path")) as
-          | string
-          | null
-          | void;
+          string | null | void;
         const normalizedPath =
           typeof storedPath === "string" && storedPath.length > 0
             ? storedPath
